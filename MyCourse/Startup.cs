@@ -15,6 +15,7 @@ namespace MyCourse
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -27,12 +28,14 @@ namespace MyCourse
                 app.UseDeveloperExceptionPage();
             }
 
-            app.Run(async (context) =>
-            {
-                //string nome = context.Request.Query["nome"];
-                string nome = "Gianni";
-                await context.Response.WriteAsync($"Hello {nome.ToUpper()}!");
-            });
+            app.UseStaticFiles();
+
+            app.UseMvcWithDefaultRoute();
+
+            //app.UseMvc(routeBuilder =>
+            //{
+            //    //routeBuilder.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
+            //});
         }
     }
 }
