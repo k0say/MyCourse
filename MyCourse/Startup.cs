@@ -28,7 +28,16 @@ namespace MyCourse
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddResponseCaching();
+
+            services.AddMvc(options =>
+            {
+                var homeProfile = new CacheProfile();
+                //homeProfile.VaryByQueryKeys = new string[] { "page" };
+                configuration.Bind("ResponseCache:Home", homeProfile);
+                options.CacheProfiles.Add("Home", homeProfile);
+                
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             //services.AddTransient<ICourseService, EfCoreCourseService>();
             //services.AddScoped<MyCourseDbContext>();
             //services.AddDbContext<MyCourseDbContext>();
@@ -66,6 +75,8 @@ namespace MyCourse
             app.UseStaticFiles();
 
             app.UseMvcWithDefaultRoute();
+
+            app.UseResponseCaching();
 
             //app.UseMvc(routeBuilder =>
             //{
