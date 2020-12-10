@@ -28,21 +28,20 @@ namespace MyCourse.Models.Services.Application
 
             return memoryCache.GetOrCreateAsync($"Course{id}", cacheEntry =>
             {
-                cacheEntry.SetSize(2);
                 cacheEntry.SetAbsoluteExpiration(TimeSpan.FromSeconds(time));
                 return courseService.GetCourseAsync(id);
             });
         }
 
-        public Task<List<CourseViewModel>> GetCoursesAsync()
+        public Task<List<CourseViewModel>> GetCoursesAsync(string search, int page, string orderby, bool ascending)
         {
             double time = expTime.CurrentValue.Default;
 
-            return memoryCache.GetOrCreateAsync($"Courses", cacheEntry =>
+            return memoryCache.GetOrCreateAsync($"Courses{search}-{page}-{orderby}-{ascending}", cacheEntry =>
             {
-                cacheEntry.SetSize(2);
+                //cacheEntry.SetSize(1);
                 cacheEntry.SetAbsoluteExpiration(TimeSpan.FromSeconds(time));
-                return courseService.GetCoursesAsync();
+                return courseService.GetCoursesAsync(search, page, orderby, ascending);
             });
         }
     }

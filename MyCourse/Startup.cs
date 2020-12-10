@@ -33,8 +33,8 @@ namespace MyCourse
             services.AddMvc(options =>
             {
                 var homeProfile = new CacheProfile();
-                //homeProfile.VaryByQueryKeys = new string[] { "page" };
-                configuration.Bind("ResponseCache:Home", homeProfile);
+                homeProfile.VaryByQueryKeys = new string[] { "page" };
+                //configuration.Bind("ResponseCache:Home", homeProfile);
                 options.CacheProfiles.Add("Home", homeProfile);
                 
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
