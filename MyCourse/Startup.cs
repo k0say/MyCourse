@@ -38,10 +38,10 @@ namespace MyCourse
                 options.CacheProfiles.Add("Home", homeProfile);
                 
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            //services.AddTransient<ICourseService, EfCoreCourseService>();
+            services.AddTransient<ICourseService, EfCoreCourseService>();
             //services.AddScoped<MyCourseDbContext>();
             //services.AddDbContext<MyCourseDbContext>();
-            services.AddTransient<ICourseService, AdoNetCourseService>();
+            //services.AddTransient<ICourseService, AdoNetCourseService>();
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
             services.AddTransient<ErrorService>();
             services.AddTransient<ICachedCourseService, MemoryCacheCourseService>();
