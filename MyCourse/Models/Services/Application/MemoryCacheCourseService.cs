@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using MyCourse.Models.InputModel;
+using MyCourse.Models.InputModels;
 using MyCourse.Models.Options;
-using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ViewModels;
 namespace MyCourse.Models.Services.Application
 {
@@ -22,6 +21,16 @@ namespace MyCourse.Models.Services.Application
             this.expTime = expTime;
         }
 
+        public Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
+        {
+            double time = expTime.CurrentValue.Default;
+            return memoryCache.GetOrCreateAsync($"MostRecentCourses", cacheEntry =>
+            {
+                cacheEntry.SetAbsoluteExpiration(TimeSpan.FromSeconds(time));
+                return courseService.GetMostRecentCoursesAsync();
+            });
+        }
+
         public Task<CourseDetailViewModel> GetCourseAsync(int id)
         {
             //Prende il valore dall'appConfigure
@@ -34,7 +43,7 @@ namespace MyCourse.Models.Services.Application
             });
         }
 
-        public Task<List<CourseViewModel>> GetCoursesAsync(CourseListInputModel model)
+        public Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel model)
         {
             double time = expTime.CurrentValue.Default;
             bool canCache = model.Page <= 5 && string.IsNullOrEmpty(model.Search);
@@ -48,6 +57,16 @@ namespace MyCourse.Models.Services.Application
                 });
             }
             return courseService.GetCoursesAsync(model);
+        }
+
+        public Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
+        {
+            double time = expTime.CurrentValue.Default;
+            return memoryCache.GetOrCreateAsync($"BestRatingCourses", cacheEntry =>
+            {
+                cacheEntry.SetAbsoluteExpiration(TimeSpan.FromSeconds(time));
+                return courseService.GetBestRatingCoursesAsync();
+            });
         }
     }
 }

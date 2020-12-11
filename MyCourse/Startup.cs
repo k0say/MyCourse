@@ -64,7 +64,7 @@ namespace MyCourse
         {
             app.UseHttpsRedirection();
 
-            if (!env.IsEnvironment("Development"))
+            if (env.IsEnvironment("Development"))
             {
                 app.UseDeveloperExceptionPage();
             } else

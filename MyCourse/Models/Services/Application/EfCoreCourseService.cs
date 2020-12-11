@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MyCourse.Models.Entities;
-using MyCourse.Models.InputModel;
+using MyCourse.Models.InputModels;
 using MyCourse.Models.Options;
 using MyCourse.Models.Services.Infrastructure;
 using MyCourse.Models.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,6 +21,35 @@ namespace MyCourse.Models.Services.Application
             this.dbContext = dbContext;
             this.coursesOptions = coursesOptions;
         }
+
+        public async Task<List<CourseViewModel>> GetBestRatingCoursesAsync()
+        {
+            CourseListInputModel inputModel = new CourseListInputModel(
+                search: "",
+                page: 1,
+                orderby: "Rating",
+                ascending: false,
+                limit: coursesOptions.CurrentValue.InHome,
+                orderOptions: coursesOptions.CurrentValue.Order);
+
+            ListViewModel<CourseViewModel> result = await GetCoursesAsync(inputModel);
+            return result.Results;
+        }
+
+        public async Task<List<CourseViewModel>> GetMostRecentCoursesAsync()
+        {
+            CourseListInputModel inputModel = new CourseListInputModel(
+                search: "",
+                page: 1,
+                orderby: "Id",
+                ascending: false,
+                limit: coursesOptions.CurrentValue.InHome,
+                orderOptions: coursesOptions.CurrentValue.Order);
+
+            ListViewModel<CourseViewModel> result = await GetCoursesAsync(inputModel);
+            return result.Results;
+        }
+
         public async Task<CourseDetailViewModel> GetCourseAsync(int id)
         {
             CourseDetailViewModel viewModel = await dbContext.Courses
@@ -50,7 +78,7 @@ namespace MyCourse.Models.Services.Application
             return viewModel;
         }
 
-        public async Task<List<CourseViewModel>> GetCoursesAsync(CourseListInputModel model)
+        public async Task<ListViewModel<CourseViewModel>> GetCoursesAsync(CourseListInputModel model)
         {
 
             IQueryable<Course> baseQuery = dbContext.Courses;
@@ -89,10 +117,9 @@ namespace MyCourse.Models.Services.Application
                     break;
             }
             IQueryable<CourseViewModel> queryLinq = baseQuery
-                
-                .Where(course => course.Title.Contains(model.Search))
-                .Skip(model.Offset)
-                .Take(model.Limit)
+                //.Where(course => course.Title.Contains(model.Search))
+                .Where(course => EF.Functions.Like(course.Title, $"%{model.Search}%"))
+
                 .AsNoTracking()
                 .Select(course =>
                 new CourseViewModel
@@ -106,9 +133,20 @@ namespace MyCourse.Models.Services.Application
                     FullPrice = course.FullPrice
                 });
 
-            List<CourseViewModel> courses = await queryLinq.ToListAsync();
+            List<CourseViewModel> courses = await queryLinq
+                .Skip(model.Offset)
+                .Take(model.Limit)
+                .ToListAsync();
 
-            return courses;
+            int totalCount = await queryLinq.CountAsync();
+
+            ListViewModel<CourseViewModel> results = new ListViewModel<CourseViewModel>
+            {
+                Results = courses,
+                TotalCount = totalCount
+            };
+
+            return results;
         }
     }
 }

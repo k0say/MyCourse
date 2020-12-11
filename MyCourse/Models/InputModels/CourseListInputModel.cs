@@ -5,17 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-namespace MyCourse.Models.InputModel
+namespace MyCourse.Models.InputModels
 {
     [ModelBinder(BinderType = typeof(CourseListInputModelBinder))]
     public class CourseListInputModel
     {
-        public CourseListInputModel(string search, int page, string orderby, bool ascending, CoursesOptions courseOptions)
+        public CourseListInputModel(string search, int page, string orderby, bool ascending, int limit, CoursesOrderOptions orderOptions)
         {
-            //Sanitizzazione
-
-            var orderOptions = courseOptions.Order;
             if (!orderOptions.Allow.Contains(orderby))
             {
                 orderby = orderOptions.By;
@@ -24,19 +20,18 @@ namespace MyCourse.Models.InputModel
 
             Search = search ?? "";
             Page = Math.Max(1, page);
+            Limit = Math.Max(1, limit);
             OrderBy = orderby;
             Ascending = ascending;
 
-            Limit = courseOptions.PerPage;
             Offset = (Page - 1) * Limit;
-
         }
         public string Search { get; }
         public int Page { get; }
         public string OrderBy { get; }
         public bool Ascending { get; }
-
-        public int Limit { get; set; }
-        public int Offset { get; set; }
+        
+        public int Limit { get; }
+        public int Offset { get; }
     }
 }
